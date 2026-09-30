@@ -24,6 +24,14 @@
   button{background:#1b1b3a;color:#dfe3ff;border:1px solid rgba(140,150,255,.35);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px}
   button:hover{background:#2a2a58}
   .about{margin-top:8px;font-size:10.5px;line-height:1.45;opacity:.75}.about summary{cursor:pointer}.about p{margin:6px 0}.about a{color:#b9a8ff}
+  #showBtn{position:fixed;left:14px;bottom:14px;width:44px;height:44px;border-radius:50%;font-size:20px;line-height:1;padding:0;display:none;align-items:center;justify-content:center;background:rgba(6,6,20,.6);opacity:.55;z-index:5}
+  #showBtn.on{display:flex}
+  @media (hover:hover){#showBtn{display:none!important}}
+  #ui{max-width:calc(100vw - 32px);-webkit-overflow-scrolling:touch}
+  #ui .xbtn{position:absolute;top:8px;right:10px;width:30px;height:30px;font-size:16px;padding:0;border-radius:50%}
+  #era .lbls b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+  #era .lbls span{flex:none}
+  @media (max-width:600px){#era{padding:6px 8px;font-size:10.5px}#era .lbls{font-size:10.5px}}
   .hint{opacity:.5;margin-top:8px;font-size:10.5px;line-height:1.4}
   #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:30px;text-align:center;font-size:15px}
 </style>
@@ -626,7 +634,7 @@ const shipMul=d=>d<=50?4*Math.pow(1/16,(50-d)/49):4*Math.pow(4,(d-50)/50);
 const shipUI=m=>Math.round(m<=4?50-49*Math.log(4/m)/Math.log(16):50+50*Math.log(m/4)/Math.log(4));
 const sliders=[['Spinners','spinners',0,20],['Meteors','meteors',0,8],['Worms','worms',0,20],['Trailers','trailers',0,40],['Tubifex','tubifex',0,50],
   ['Size','size',10,300],['Bloom','bloom',0,200],['Cam dist','camDist',0,45],['Debris','debris',0,200],['Nebula','nebula',0,100],['Sparkles','sparkles',0,200],['Speed','time',0,200]];
-ui.innerHTML=`<h1>RHINDLE'S LIGHTS</h1><div class="sub">inspired by Voodoo Lights (Sergio Duarte, 2000)</div>`+
+ui.innerHTML=`<button class="xbtn" id="bX" title="Hide controls">✕</button><h1>RHINDLE'S LIGHTS</h1><div class="sub">inspired by Voodoo Lights (Sergio Duarte, 2000)</div>`+
  sliders.map(([l,k,a,b])=>`<div class="row"><span>${l}</span><input type="range" id="s_${k}" min="${a}" max="${b}" value="${dispOf(k)}"><span id="v_${k}">${dispOf(k)}</span></div>`).join('')+
  `<div class="row"><span>Camera</span><select id="camSel" style="grid-column:2/4;background:#1b1b3a;color:#fff;border:1px solid #445;border-radius:5px;padding:3px">
    <option value="follow">Follow the creatures</option><option value="classic">Classic drift</option></select></div>
@@ -636,13 +644,13 @@ ui.innerHTML=`<h1>RHINDLE'S LIGHTS</h1><div class="sub">inspired by Voodoo Light
   <div class="row"><span>Ship dist</span><input type="range" id="s_shipDist" min="8" max="160" value="80"><span id="v_shipDist">80</span></div>
   <div class="row"><span>Ship speed</span><input type="range" id="s_shipSpeed" min="1" max="100" value="50"><span id="v_shipSpeed">50</span></div>
   <div class="row"><span>Ship every</span><input type="range" id="s_flyEvery" min="10" max="180" value="45"><span id="v_flyEvery">45</span></div>
-  <div class="btns"><button id="bFs">Fullscreen (F)</button><button id="bShip">Fly one now</button><button id="bDef">Defaults</button></div>
+  <div class="btns"><button id="bFs">Fullscreen (F)</button><button id="bShip">Fly one now</button><button id="bDef">Defaults</button><button id="bHide">Hide panel</button></div>
   <details class="about"><summary>About</summary>
     <p><b>Rhindle's Lights</b> is an unofficial, non-commercial tribute inspired by <i>Voodoo Lights</i> by Sergio Duarte (2000). It was rebuilt from scratch by watching the original; it contains no code or assets from it.</p>
     <p>Fan tribute only. Star Trek, the U.S.S. Enterprise and related names are trademarks of Paramount; this project is not affiliated with or endorsed by them. "Voodoo" is a 3dfx name, used here only to describe an era of graphics.</p>
     <p>Rendered with <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (MIT License). Made by Keith with Hermes and Claude Sonnet.</p>
   </details>
-  <div class="hint">H hides the panels · they fade out on their own after a few seconds of no mouse movement.</div>`;
+  <div class="hint">Tap empty space (or press H) to hide the panels, ✕ to close · they also fade on their own after a few seconds.</div>`;
 document.getElementById('camSel').value=S.camera;
 let rebuildT=null;
 for(const [,k] of sliders){
@@ -673,10 +681,19 @@ document.getElementById('bDef').onclick=()=>{Object.assign(S,{spinners:6,meteors
 function setWorld(){WORLD_R=worldFor(S.camDist);rebuildCreatures();warmUp(900)}
 function toggleFs(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()}
 let uiHidden=false,idle=0;
-addEventListener('mousemove',()=>{idle=0;if(!uiHidden){ui.classList.remove('hide');eraEl.classList.remove('hide')}});
+const showBtn=document.createElement('button');showBtn.id='showBtn';showBtn.textContent='☰';showBtn.title='Show controls';document.body.appendChild(showBtn);
+function setUI(show){uiHidden=!show;idle=0;ui.classList.toggle('hide',!show);eraEl.classList.toggle('hide',!show);showBtn.classList.toggle('on',!show&&Q.get('ui')!=='0')}
+const wake=()=>{idle=0;if(!uiHidden){ui.classList.remove('hide');eraEl.classList.remove('hide')}};
+addEventListener('mousemove',wake);addEventListener('pointermove',wake);addEventListener('pointerdown',wake);
+document.getElementById('bX').onclick=()=>setUI(false);document.getElementById('bHide').onclick=()=>setUI(false);showBtn.onclick=()=>setUI(true);
+// touch: tap empty space to hide the panels, tap again to bring them back
+{let d=null;const cv=renderer.domElement;
+ cv.addEventListener('pointerdown',e=>{d=e.pointerType==='touch'?{x:e.clientX,y:e.clientY,t:performance.now()}:null});
+ cv.addEventListener('pointerup',e=>{if(!d)return;const m=Math.hypot(e.clientX-d.x,e.clientY-d.y),t=performance.now()-d.t;d=null;
+   if(m<12&&t<500){const visible=!uiHidden&&!ui.classList.contains('hide');setUI(!visible)}});}
 addEventListener('keydown',e=>{
   if(e.key==='f'||e.key==='F')toggleFs();
-  if(e.key==='h'||e.key==='H'){uiHidden=!uiHidden;ui.classList.toggle('hide',uiHidden);eraEl.classList.toggle('hide',uiHidden)}
+  if(e.key==='h'||e.key==='H')setUI(uiHidden)
   if(e.key==='e'||e.key==='E'){eraSlider.value=(+eraSlider.value+1)%3;S.era=eraSlider.value/2;applyEra()}
 });
 if(Q.get('ui')==='0'){uiHidden=true;ui.classList.add('hide');eraEl.classList.add('hide')}
