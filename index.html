@@ -61,7 +61,7 @@ const rng = mulberry32(parseInt(Q.get('seed')||String((Math.random()*1e9)|0)));
 const R = (a=0,b=1)=>a+(b-a)*rng();
 
 // ---------------- settings (defaults match the original control panel) ----------------
-const S = {spinners:10, meteors:6, worms:8, trailers:9, tubifex:16, size:50, debris:100, time:225, nebula:100, camDist:+(Q.get('dist')||10), flybys:Q.get('ships')!=='0', shipTos:true, shipTng:true, bloom:+(Q.get('bloom')||140), shipDist:+(Q.get('sd')||100), shipSpeed:400, sparkles:81, haze:Q.get('haze')!=='0', flyEvery:15,
+const S = {spinners:10, meteors:6, worms:8, trailers:9, tubifex:16, size:50, debris:100, time:225, nebula:100, camDist:+(Q.get('dist')||10), flybys:Q.get('ships')!=='0', shipTos:true, shipTng:true, bloom:+(Q.get('bloom')||140), shipDist:+(Q.get('sd')||100), shipSpeed:400, sparkles:81, haze:Q.get('haze')!=='0', flyEvery:45,
            camera: Q.get('cam')==='follow'?'follow':'classic', era: parseFloat(Q.get('era')||'0')};
 
 // ---------------- renderer ----------------
@@ -643,7 +643,7 @@ ui.innerHTML=`<button class="xbtn" id="bX" title="Hide controls">✕</button><h1
   <div class="row" style="grid-template-columns:1fr;padding-left:14px;opacity:.9"><span><label><input type="checkbox" id="c_shipTos" checked> Enterprise (original)</label><br><label><input type="checkbox" id="c_shipTng" checked> Enterprise-D (Next Gen)</label></span></div>
   <div class="row"><span>Ship dist</span><input type="range" id="s_shipDist" min="8" max="160" value="80"><span id="v_shipDist">80</span></div>
   <div class="row"><span>Ship speed</span><input type="range" id="s_shipSpeed" min="1" max="100" value="50"><span id="v_shipSpeed">50</span></div>
-  <div class="row"><span>Ships every</span><input type="range" id="s_flyEvery" min="10" max="60" value="15"><span id="v_flyEvery">15</span></div>
+  <div class="row"><span>Ships every</span><input type="range" id="s_flyEvery" min="10" max="60" value="45"><span id="v_flyEvery">45</span></div>
   <div class="btns"><button id="bFs">Fullscreen (F)</button><button id="bShip">Fly one now</button><button id="bDef">Defaults</button><button id="bHide">Hide panel</button></div>
   <details class="about"><summary>About</summary>
     <p><b>Rhindle's Lights</b> is an unofficial, non-commercial tribute inspired by <i>Voodoo Lights</i> by Sergio Duarte (2000). It was rebuilt from scratch by watching the original; it contains no code or assets from it.</p>
@@ -671,7 +671,7 @@ for(const k of ['flybys','shipTos','shipTng']){const el=document.getElementById(
 {const el=document.getElementById('s_shipDist');el.value=S.shipDist;document.getElementById('v_shipDist').textContent=S.shipDist;el.oninput=()=>{S.shipDist=+el.value;document.getElementById('v_shipDist').textContent=el.value}}
 {const el=document.getElementById('s_flyEvery');el.value=S.flyEvery;document.getElementById('v_flyEvery').textContent=S.flyEvery;el.oninput=()=>{S.flyEvery=+el.value;document.getElementById('v_flyEvery').textContent=el.value}}
 document.getElementById('bShip').onclick=()=>spawnShip();
-document.getElementById('bDef').onclick=()=>{Object.assign(S,{spinners:10,meteors:6,worms:8,trailers:9,tubifex:16,size:50,debris:100,time:225,camDist:10,nebula:100,flyEvery:15,bloom:140,shipDist:100});
+document.getElementById('bDef').onclick=()=>{Object.assign(S,{spinners:10,meteors:6,worms:8,trailers:9,tubifex:16,size:50,debris:100,time:225,camDist:10,nebula:100,flyEvery:45,bloom:140,shipDist:100});
   {const e=document.getElementById('s_shipDist');e.value=100;document.getElementById('v_shipDist').textContent=100}
   Object.assign(S,{shipSpeed:400,sparkles:81,haze:true});
   {const e=document.getElementById('s_shipSpeed');e.value=shipUI(4);document.getElementById('v_shipSpeed').textContent=e.value}
